@@ -1,7 +1,6 @@
 ## Use this for any scratch work ##
-# print('hello world')
-# for ii in range(5):
-#     print(ii)
-# print('jamin')
 
-pip install spotipy --upgrade
+print('hello world')
+
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
