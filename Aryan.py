@@ -9,8 +9,6 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     redirect_uri="http://127.0.0.1:8888/callback",
     scope=["user-top-read"]
 ))
-print(sp.auth_manager.get_cached_token())
-print(sp.current_user())  
 
 # Fetch the current user's top artists
 top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
