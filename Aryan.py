@@ -11,7 +11,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 ))
 
 # Fetch the current user's top artists
-top_artists = sp.current_user_top_artists(limit=5, time_range='medium_term')
+top_artists = sp.current_user_top_artists(limit=50, time_range='long_term')
 print(top_artists)
 # top_artist = top_artists['items'][0]
 # print(f"Your top artist is {top_artist['name']}")
