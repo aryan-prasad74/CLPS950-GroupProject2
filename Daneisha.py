@@ -1,21 +1,28 @@
-#Login to Spotify → Choose Playlist → View Mood Profile → Generate Mood Playlist
+import tkinter as tk
 
-import streamlit as st
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+#This function handles when the login button is clicked
+def login_clicked():
+    print("login button clicked") #placeholder, replace w authentication code
 
-#Authentication details, identifies variables
-client_id = "CLIENT ID"
-client_secret = "CLIENT Secret"
-redirect_uri = "http://localhost:8888/callback"
-scope = "playlist-read-private playlist-read-collaborative user-library-read"
+#This function creates and displays the application window for the Mood Analyzer.
+def create_application_window():
 
+    #creates main / root window 
+    root = tk.Tk()
+    root.title("Spotify Mood Analyzer")
+    root.geometry("900x700")
 
-#Authenticate user
-def authenticate_spotify_user():
-    return spotipy.Spotify(auth_manager = SpotifyOAuth(
-        client_id = client_id,
-        client_secret = client_secret,
-        redirect_uri = redirect_uri,
-        scope = scope
-    ))
+    #creates frame within the window for layout
+    frame = tk.Frame(root)
+    frame.pack(expand = True)
+
+    #creates login button within the frame
+    login_button = tk.Button(frame, text = "Login to Spotify", command = login_clicked,
+                             bg = "grey", fg = "black", font = ("Helvetica", 14, "bold"))
+    login_button.pack(pady = 40)
+
+    root.mainloop() #this line of code starts the tkinter event loop, which will keep the window open and working
+
+#if the script is being run, create the window
+if __name__ == "__main__":
+    create_application_window()
