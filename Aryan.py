@@ -21,13 +21,25 @@ playlists = sp.current_user_playlists()
 for idx, playlist in enumerate(playlists['items'], start=1):
     print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
 
+# Prompt the user to select a playlist by index
+selected_index = int(input("\nEnter the index of the playlist to view its tracks: ")) - 1
+selected_playlist_id = playlists['items'][selected_index]['id']
 
-#Find top artists
-top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
+# Fetch the tracks in the selected playlist
+tracks = sp.playlist_tracks(selected_playlist_id)
 
-# Check if there are any top artists, if so display, else return msg.
-if top_artists['items']:
-    for idx, artist in enumerate(top_artists['items'], 1):
-        print(f"{idx}. {artist['name']}")
-else:
-    print("No top artists found.")
+print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
+for idx, item in enumerate(tracks['items'], start=1):
+    track = item['track']
+    print(f"{idx}. {track['name']} (ID: {track['id']})")
+
+
+####################################### Find top artists #########################################
+# top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
+
+# # Check if there are any top artists, if so display, else return msg.
+# if top_artists['items']:
+#     for idx, artist in enumerate(top_artists['items'], 1):
+#         print(f"{idx}. {artist['name']}")
+# else:
+#     print("No top artists found.")
