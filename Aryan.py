@@ -18,11 +18,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 
 ## List playlists
 playlists = sp.current_user_playlists()
-if playlists['items']:
-    for idx, playlist in enumerate(playlists['items'], start=1):
-        print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
-    else:
-        print('No Playlists Found')
+for idx, playlist in enumerate(playlists['items'], start=1):
+    print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
 
 
 #Find top artists
