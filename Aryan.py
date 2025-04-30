@@ -29,9 +29,12 @@ selected_playlist_id = playlists['items'][selected_index]['id']
 tracks = sp.playlist_tracks(selected_playlist_id)
 
 print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
+cumulative_ids = []
 for idx, item in enumerate(tracks['items'], start=1):
     track = item['track']
     print(f"{idx}. {track['name']} (ID: {track['id']})")
+    cumulative_ids.append(track['id'])
+print(cumulative_ids)
 
 
 ####################################### Find top artists #########################################
