@@ -48,3 +48,19 @@ print(cumulative_ids)
 #         print(f"{idx}. {artist['name']}")
 # else:
 #     print("No top artists found.")
+audio_features = sp.audio_features(cumulative_ids)
+
+print("\nAudio Features for each track:")
+for idx, features in enumerate(audio_features, start=1):
+    if features:  # Ensure the track's features were fetched successfully
+        print(f"{idx}. {features['id']}:")
+        print(f"   Danceability: {features['danceability']}")
+        print(f"   Energy: {features['energy']}")
+        print(f"   Valence: {features['valence']}")
+        print(f"   Tempo: {features['tempo']}")
+        print(f"   Acousticness: {features['acousticness']}")
+        print(f"   Instrumentalness: {features['instrumentalness']}")
+        print(f"   Liveness: {features['liveness']}")
+        print(f"   Speechiness: {features['speechiness']}")
+    else:
+        print(f"{idx}. No features available.")
