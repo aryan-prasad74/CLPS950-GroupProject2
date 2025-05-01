@@ -10,29 +10,20 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope= "playlist-read-private user-top-read"
 ))
 
-######################## JSON Test ###############################
-# import json
-# response = sp.current_user_top_tracks(limit=10)
-# print(json.dumps(response, indent=2))
-##################################################################
+print("Authenticated as:", sp.current_user()['display_name'])
 
-## List playlists
-playlists = sp.current_user_playlists()
-for idx, playlist in enumerate(playlists['items'], start=1):
-    print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
+# Track IDs
+track_ids = [
+    "3xdjjKMcMOFgo1eQrfbogM",
+    "08er9ndoqL5gTp6eUdTTTw",
+    "3fqwjXwUGN6vbzIwvyFMhx",
+    "4obHzpwGrjoTuZh2DItEMZ"
+]
 
-# Prompt the user to select a playlist by index
-selected_index = int(input("\nEnter the index of the playlist to view its tracks: ")) - 1
-selected_playlist_id = playlists['items'][selected_index]['id']
-
-# Fetch the tracks in the selected playlist
-tracks = sp.playlist_tracks(selected_playlist_id)
-
-print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
-cumulative_ids = []
-for idx, item in enumerate(tracks['items'], start=1):
-    track = item['track']
-    print(f"{idx}. {track['name']} (ID: {track['id']})")
-    cumulative_ids.append(track['id'])
-print(cumulative_ids)
-
+# Get features
+features = sp.audio_features(track_ids)
+for f in features:
+    if f:
+        print(f"{f['id']}: danceability={f['danceability']}, energy={f['energy']}")
+    else:
+        print("No features available.")
