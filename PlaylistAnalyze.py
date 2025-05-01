@@ -1,4 +1,6 @@
-
+import os
+if os.path.exists(".cache"):
+    os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -36,3 +38,29 @@ for idx, item in enumerate(tracks['items'], start=1):
     cumulative_ids.append(track['id'])
 print(cumulative_ids)
 
+
+####################################### Find top artists #########################################
+# top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
+
+# # Check if there are any top artists, if so display, else return msg.
+# if top_artists['items']:
+#     for idx, artist in enumerate(top_artists['items'], 1):
+#         print(f"{idx}. {artist['name']}")
+# else:
+#     print("No top artists found.")
+audio_features = sp.audio_features(cumulative_ids)
+
+print("\nAudio Features for each track:")
+for idx, features in enumerate(audio_features, start=1):
+    if features:  # Ensure the track's features were fetched successfully
+        print(f"{idx}. {features['id']}:")
+        print(f"   Danceability: {features['danceability']}")
+        print(f"   Energy: {features['energy']}")
+        print(f"   Valence: {features['valence']}")
+        print(f"   Tempo: {features['tempo']}")
+        print(f"   Acousticness: {features['acousticness']}")
+        print(f"   Instrumentalness: {features['instrumentalness']}")
+        print(f"   Liveness: {features['liveness']}")
+        print(f"   Speechiness: {features['speechiness']}")
+    else:
+        print(f"{idx}. No features available.")
