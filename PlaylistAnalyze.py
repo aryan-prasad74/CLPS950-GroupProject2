@@ -58,9 +58,5 @@ for idx, features in enumerate(audio_features, start=1):
         print(f"   Energy: {features['energy']}")
         print(f"   Valence: {features['valence']}")
         print(f"   Tempo: {features['tempo']}")
-        print(f"   Acousticness: {features['acousticness']}")
-        print(f"   Instrumentalness: {features['instrumentalness']}")
-        print(f"   Liveness: {features['liveness']}")
-        print(f"   Speechiness: {features['speechiness']}")
     else:
         print(f"{idx}. No features available.")
