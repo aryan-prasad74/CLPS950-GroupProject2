@@ -1,4 +1,6 @@
-
+import os
+if os.path.exists(".cache"):
+    os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -46,14 +48,3 @@ print(cumulative_ids)
 #         print(f"{idx}. {artist['name']}")
 # else:
 #     print("No top artists found.")
-
-for i in range(0, len(cumulative_ids)):
-    batch_ids = cumulative_ids[i:i+50]
-    features = sp.audio_features(batch_ids)
-    for feature in features:
-        if feature:
-            print(f"Track ID: {feature['id']}")
-            print(f"  Energy: {feature['energy']}")
-            print(f"  Tempo: {feature['tempo']}")
-            print(f"  Valence: {feature['valence']}")
-            print(f"  Danceability: {feature['danceability']}\n")
