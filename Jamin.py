@@ -3,7 +3,7 @@ if os.path.exists(".cache"):
     os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import requests
+
 
 # SpotifyOAuth handles token management automatically
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -12,10 +12,6 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     redirect_uri="http://127.0.0.1:8888/callback",
     scope= "playlist-read-private user-top-read"
 ))
-
-# Get access token for direct HTTP calls
-access_token = sp.auth_manager.get_access_token(as_dict=False)
-headers = {"Authorization": f"Bearer {access_token}"}
 
 def list_user_playlists():
     playlists = sp.current_user_playlists()
@@ -27,28 +23,27 @@ def get_artist_ids_from_playlist(playlist_id):
     artist_ids = set()
     results = sp.playlist_tracks(playlist_id)
     
-    # Paginate if needed
+    # Paginate through playlist tracks
     while results:
         for item in results['items']:
             track = item['track']
             if track and track.get('artists'):
                 for artist in track['artists']:
                     artist_ids.add(artist['id'])
-        if results.get('next'):
-            results = sp.next(results)
-        else:
-            results = None
+        results = sp.next(results) if results.get('next') else None
     return list(artist_ids)
 
-def get_recommendations(seed_artists, seed_genres, limit=20):
-    base_url = "https://api.spotify.com/v1/recommendations"
-    params = {
-        "limit": limit,
-        "seed_artists": ",".join(seed_artists[:5]),
-        "seed_genres": ",".join(seed_genres[:5]) if seed_genres else ""
+def get_recommendations_via_spotipy(seed_artists, seed_genres=None, limit=20):
+    # Spotipy used to have `sp.recommendations`, but it's deprecated in some versions
+    # So we use the internal _get method to safely call the endpoint without raw requests
+    query_params = {
+        'seed_artists': ','.join(seed_artists[:5]),
+        'limit': limit
     }
-    response = requests.get(base_url, headers=headers, params=params)
-    return response.json()
+    if seed_genres:
+        query_params['seed_genres'] = ','.join(seed_genres[:5])
+    
+    return sp._get('recommendations', args=query_params)
 
 def create_playlist_with_recommendations(recommended_tracks, playlist_name="Generated from Playlist"):
     user_id = sp.current_user()["id"]
@@ -70,7 +65,7 @@ def main():
     seed_genres = [g.strip() for g in genres_input.split(',')] if genres_input else []
 
     print("\n🎯 Getting recommendations based on artists and genres...")
-    recs = get_recommendations(artist_ids, seed_genres)
+    recs = get_recommendations_via_spotipy(artist_ids, seed_genres)
     track_ids = [track["id"] for track in recs.get("tracks", [])]
 
     create_playlist_with_recommendations(track_ids, playlist_name=f"Based on {selected_playlist_name}")
