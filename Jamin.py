@@ -13,6 +13,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope= "playlist-read-private user-top-read"
 ))
 
+sp = spotipy.Spotify(auth_manager=sp)
 def list_user_playlists():
     playlists = sp.current_user_playlists()
     for idx, playlist in enumerate(playlists['items'], start=1):
