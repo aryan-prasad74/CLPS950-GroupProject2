@@ -1,3 +1,6 @@
+import os
+if os.path.exists(".cache"):
+    os.remove(".cache")
 import tkinter as tk
 
 #This function handles when the login button is clicked
