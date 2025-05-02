@@ -1,15 +1,17 @@
+import os
+if os.path.exists(".cache"):
+    os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import requests
 
 # SpotifyOAuth handles token management automatically
-sp_oauth = SpotifyOAuth(
-    client_id='YOUR_CLIENT_ID',
-    client_secret='YOUR_CLIENT_SECRET',
-    redirect_uri='http://localhost:8888/callback',
-    scope='playlist-read-private playlist-modify-public'
-)
-sp = spotipy.Spotify(auth_manager=sp_oauth)
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id="95a3dd3dd0b241709a938b502eb7326a",
+    client_secret="dc98f98db12d43149e4e6247a7a2fc08",
+    redirect_uri="http://127.0.0.1:8888/callback",
+    scope= "playlist-read-private user-top-read"
+))
 
 # Get access token for direct HTTP calls
 access_token = sp.auth_manager.get_access_token(as_dict=False)
