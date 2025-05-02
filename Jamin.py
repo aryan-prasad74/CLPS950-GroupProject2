@@ -1,21 +1,18 @@
-import os
-if os.path.exists(".cache"):
-    os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import requests
 
-# Set your credentials and redirect URI --- TEST(G)
-sp_oauth = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id="95a3dd3dd0b241709a938b502eb7326a",
-    client_secret="dc98f98db12d43149e4e6247a7a2fc08",
-    redirect_uri="http://127.0.0.1:8888/callback",
-    scope= "playlist-read-private user-top-read"
-))
+# SpotifyOAuth handles token management automatically
+sp_oauth = SpotifyOAuth(
+    client_id='YOUR_CLIENT_ID',
+    client_secret='YOUR_CLIENT_SECRET',
+    redirect_uri='http://localhost:8888/callback',
+    scope='playlist-read-private playlist-modify-public'
+)
+sp = spotipy.Spotify(auth_manager=sp_oauth)
 
-token_info = sp_oauth.get_access_token()
-access_token = token_info['access_token']
-sp = spotipy.Spotify(auth=access_token)
+# Get access token for direct HTTP calls
+access_token = sp.auth_manager.get_access_token(as_dict=False)
 headers = {"Authorization": f"Bearer {access_token}"}
 
 def list_user_playlists():
@@ -25,16 +22,21 @@ def list_user_playlists():
     return playlists
 
 def get_artist_ids_from_playlist(playlist_id):
-    results = sp.playlist_tracks(playlist_id)
     artist_ids = set()
-    for item in results['items']:
-        track = item['track']
-        for artist in track['artists']:
-            artist_ids.add(artist['id'])
+    results = sp.playlist_tracks(playlist_id)
+    
+    # Paginate if needed
+    while results:
+        for item in results['items']:
+            track = item['track']
+            if track and track.get('artists'):
+                for artist in track['artists']:
+                    artist_ids.add(artist['id'])
+        if results.get('next'):
+            results = sp.next(results)
+        else:
+            results = None
     return list(artist_ids)
-
-def get_artist_name(artist_id):
-    return sp.artist(artist_id)['name']
 
 def get_recommendations(seed_artists, seed_genres, limit=20):
     base_url = "https://api.spotify.com/v1/recommendations"
