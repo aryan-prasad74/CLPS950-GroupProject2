@@ -60,14 +60,16 @@ if os.path.exists(".cache"):
     os.remove(".cache")
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from spotipy.exceptions import SpotifyException
+
 
 # # Set your credentials and redirect URI --- TEST(G)
-# sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-#     client_id="95a3dd3dd0b241709a938b502eb7326a",
-#     client_secret="dc98f98db12d43149e4e6247a7a2fc08",
-#     redirect_uri="http://127.0.0.1:8888/callback",
-#     scope= "playlist-read-private user-top-read"
-# ))
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+     client_id="95a3dd3dd0b241709a938b502eb7326a",
+     client_secret="dc98f98db12d43149e4e6247a7a2fc08",
+     redirect_uri="http://127.0.0.1:8888/callback",
+    scope= "playlist-read-private user-top-read"
+ ))
 
 
 # ## List playlists
@@ -93,8 +95,14 @@ from spotipy.oauth2 import SpotifyOAuth
 #####################################################
 
 
-audio_features = sp.audio_features(tracks='2JzZzZUQj3Qff7wapcbKjc')
-print(audio_features)
+try:
+    audio_features = sp.audio_features(tracks=['2JzZzZUQj3Qff7wapcbKjc'])
+    print(audio_features)
+except SpotifyException as e:
+    if e.http_status == 403:
+        print("Access to the audio-features endpoint is restricted for your application.")
+    else:
+        print(f"An error occurred: {e}")
 
 # print("\nAudio Features for each track:")
 # for idx, features in enumerate(audio_features, start=1):
