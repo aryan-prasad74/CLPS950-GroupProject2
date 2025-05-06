@@ -43,7 +43,7 @@ print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
 cumulative_ids = []
 
 def get_lyrics(track_name, artist_name):
-    search_query = f"{track_name} {artist_name} site:genius.com"
+    search_query = f"{track_name} {artist_name} site:https://genius.com"
     search_url = f"https://www.google.com/search?q={requests.utils.quote(search_query)}"
 
     # Set up headless Chrome
@@ -64,7 +64,7 @@ def get_lyrics(track_name, artist_name):
         genius_url = None
         for link in links:
             href = link.get_attribute("href")
-            if href and "genius.com" in href and "/lyrics" in href:
+            if href and "https://genius.com" in href and "/lyrics" in href:
                 genius_url = href
                 break
 
