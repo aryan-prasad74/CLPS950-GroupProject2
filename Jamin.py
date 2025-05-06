@@ -43,33 +43,43 @@ print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
 cumulative_ids = []
 
 def get_lyrics(track_name, artist_name):
-    """Scrape Genius lyrics using Google search."""
     query = f"{track_name} {artist_name} site:genius.com"
     search_url = f"https://www.google.com/search?q={requests.utils.quote(query)}"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(search_url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
 
-    for link in soup.select("a"):
-        href = link.get("href")
-        if "genius.com" in href:
-            try:
-            # Safely extract full Genius URL
-                if "/url?q=" in href:
-                    lyrics_url = href.split("&")[0].replace("/url?q=", "")
-                elif href.startswith("http"):
-                    lyrics_url = href
-                else:
-                    continue
-            # Fetch lyrics page
-                lyrics_page = requests.get(lyrics_url, headers=headers)
-                lyrics_soup = BeautifulSoup(lyrics_page.text, "html.parser")
-                lyrics_divs = lyrics_soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
-                if lyrics_divs:
-                    lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_divs])
-                return lyrics
-            except Exception as e:
-                print(f"  ➤ Failed to fetch lyrics from {href}: {e}")
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--log-level=3")  # Suppress logs
+
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(search_url)
+    time.sleep(2)
+
+    # Find first Genius link
+    links = driver.find_elements("tag name", "a")
+    genius_url = None
+    for link in links:
+        href = link.get_attribute("href")
+        if href and "genius.com" in href:
+            genius_url = href
+            break
+
+    if not genius_url:
+        driver.quit()
+        return None
+
+    # Visit Genius page
+    driver.get(genius_url)
+    time.sleep(2)
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    lyrics_divs = soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
+
+    driver.quit()
+
+    if lyrics_divs:
+        return "\n".join([div.get_text(separator="\n") for div in lyrics_divs])
     return None
 
 def analyze_sentiment_vader(lyrics):
