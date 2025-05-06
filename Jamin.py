@@ -2,7 +2,6 @@ import os
 if os.path.exists(".cache"):
     os.remove(".cache")
 import requests
-from bs4 import BeautifulSoup
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -11,6 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
 
@@ -43,44 +43,54 @@ print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
 cumulative_ids = []
 
 def get_lyrics(track_name, artist_name):
-    query = f"{track_name} {artist_name} site:genius.com"
-    search_url = f"https://www.google.com/search?q={requests.utils.quote(query)}"
+    search_query = f"{track_name} {artist_name} site:genius.com"
+    search_url = f"https://www.google.com/search?q={requests.utils.quote(search_query)}"
 
+    # Set up headless Chrome
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-    options.add_argument("--log-level=3")  # Suppress logs
+    options.add_argument("--window-size=1920x1080")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get(search_url)
-    time.sleep(2)
+    
+    try:
+        driver.get(search_url)
+        time.sleep(2)  # Let page load
 
-    # Find first Genius link
-    links = driver.find_elements("tag name", "a")
-    genius_url = None
-    for link in links:
-        href = link.get_attribute("href")
-        if href and "genius.com" in href:
-            genius_url = href
-            break
+        # Find all <a> tags and get first Genius link
+        links = driver.find_elements(By.TAG_NAME, "a")
+        genius_url = None
+        for link in links:
+            href = link.get_attribute("href")
+            if href and "genius.com" in href and "/lyrics" in href:
+                genius_url = href
+                break
 
-    if not genius_url:
-        driver.quit()
+        if not genius_url:
+            print("  ➤ Genius link not found.")
+            return None
+
+        # Load Genius lyrics page
+        driver.get(genius_url)
+        time.sleep(3)  # Wait for lyrics to load
+
+        # Parse page with BeautifulSoup
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Genius lyrics are split across multiple divs
+        lyrics_containers = soup.find_all("div", class_=lambda c: c and "Lyrics__Container" in c)
+
+        lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_containers])
+        print("Genius URL:", genius_url)
+        print("Lyrics snippet:", lyrics[:300] if lyrics else "None")
+        return lyrics.strip() if lyrics else None
+
+    except Exception as e:
+        print(f"  ➤ Error fetching lyrics: {e}")
         return None
-
-    # Visit Genius page
-    driver.get(genius_url)
-    time.sleep(2)
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    lyrics_divs = soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
-
-    driver.quit()
-
-    if lyrics_divs:
-        return "\n".join([div.get_text(separator="\n") for div in lyrics_divs])
-    return None
 
 def analyze_sentiment_vader(lyrics):
     """Analyze sentiment using VADER."""
