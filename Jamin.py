@@ -7,6 +7,12 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import time
 
 # Download VADER lexicon if not already present
 nltk.download('vader_lexicon')
@@ -47,13 +53,23 @@ def get_lyrics(track_name, artist_name):
     for link in soup.select("a"):
         href = link.get("href")
         if "genius.com" in href:
-            lyrics_url = href.split("&")[0].replace("/url?q=", "")
-            lyrics_page = requests.get(lyrics_url, headers=headers)
-            lyrics_soup = BeautifulSoup(lyrics_page.text, "html.parser")
-            lyrics_divs = lyrics_soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
-            if lyrics_divs:
-                lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_divs])
+            try:
+            # Safely extract full Genius URL
+                if "/url?q=" in href:
+                    lyrics_url = href.split("&")[0].replace("/url?q=", "")
+                elif href.startswith("http"):
+                    lyrics_url = href
+                else:
+                    continue
+            # Fetch lyrics page
+                lyrics_page = requests.get(lyrics_url, headers=headers)
+                lyrics_soup = BeautifulSoup(lyrics_page.text, "html.parser")
+                lyrics_divs = lyrics_soup.find_all("div", class_="Lyrics__Container-sc-1ynbvzw-6")
+                if lyrics_divs:
+                    lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_divs])
                 return lyrics
+            except Exception as e:
+                print(f"  ➤ Failed to fetch lyrics from {href}: {e}")
     return None
 
 def analyze_sentiment_vader(lyrics):
