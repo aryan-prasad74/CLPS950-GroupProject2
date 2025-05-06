@@ -61,7 +61,7 @@ def get_lyrics(track_name, artist_name):
 
         # Find all <a> tags and get first Genius link
         links = driver.find_elements(By.TAG_NAME, "a")
-        genius_url = None
+        genius_url = "https://genius.com"
         for link in links:
             href = link.get_attribute("href")
             if href and "https://genius.com" in href and "/lyrics" in href:
@@ -84,7 +84,6 @@ def get_lyrics(track_name, artist_name):
         lyrics_containers = soup.find_all("div", class_=lambda c: c and "Lyrics__Container" in c)
 
         lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_containers])
-        print("Genius URL:", genius_url)
         print("Lyrics snippet:", lyrics[:300] if lyrics else "None")
         return lyrics.strip() if lyrics else None
 
