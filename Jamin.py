@@ -1,20 +1,14 @@
 import os
-if os.path.exists(".cache"):
-    os.remove(".cache")
 import requests
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
-import time
-import requests
 import xml.etree.ElementTree as ET
+
+# Remove existing cache
+if os.path.exists(".cache"):
+    os.remove(".cache")
 
 # Download VADER lexicon if not already present
 nltk.download('vader_lexicon')
@@ -45,36 +39,39 @@ print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
 cumulative_ids = []
 
 def get_lyrics(track_name, artist_name):
-    """Fetch lyrics from ChartLyrics API."""
+    """
+    Fetch lyrics using the ChartLyrics API.
+    """
+    url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect"
+    params = {"artist": artist_name, "song": track_name}
     try:
-        search_url = f"http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist={requests.utils.quote(artist_name)}&song={requests.utils.quote(track_name)}"
-        response = requests.get(search_url)
-        if response.status_code != 200:
-            print("  ➤ Failed to connect to ChartLyrics API.")
-            return None
-
-        soup = BeautifulSoup(response.text, 'xml')
-        lyrics = soup.find('Lyric')
-        if lyrics and lyrics.text.strip():
-            print("Lyrics snippet:", lyrics.text.strip()[:300])
-            return lyrics.text.strip()
+        response = requests.get(url, params=params, timeout=5)
+        response.raise_for_status()
+        root = ET.fromstring(response.content)
+        ns = {'ns': 'http://api.chartlyrics.com/'}
+        lyric = root.find('ns:Lyric', ns)
+        if lyric is not None and lyric.text:
+            print("Lyrics snippet:", lyric.text[:300])
+            return lyric.text.strip()
         else:
-            print("  ➤ No lyrics found on ChartLyrics.")
-            return None
+            print("  ➤ Lyrics not found.")
 
+            return None
     except Exception as e:
-        print(f"  ➤ Error fetching lyrics from ChartLyrics: {e}")
+        print(f"  ➤ Error fetching lyrics: {e}")
         return None
 
 def analyze_sentiment_vader(lyrics):
-    """Analyze sentiment using VADER."""
+    """
+    Analyze sentiment using VADER.
+    """
     if lyrics:
         scores = vader.polarity_scores(lyrics)
         compound = scores['compound']
         mood = "Positive" if compound > 0.3 else "Negative" if compound < -0.3 else "Neutral"
         return mood, compound
     return "Unknown", 0.0
-
+not_found_count = 0
 # Process each track
 for idx, item in enumerate(tracks['items'], start=1):
     track = item['track']
@@ -90,5 +87,7 @@ for idx, item in enumerate(tracks['items'], start=1):
         print(f"  ➤ Mood: {mood} (Compound Score: {score:.2f})")
     else:
         print("  ➤ Lyrics not found.")
+        not_found_count += 1
 
 print("\nTrack IDs collected:", cumulative_ids)
+print(not_found_count)
