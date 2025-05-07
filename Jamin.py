@@ -13,6 +13,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
+import requests
+import xml.etree.ElementTree as ET
 
 # Download VADER lexicon if not already present
 nltk.download('vader_lexicon')
@@ -43,52 +45,25 @@ print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
 cumulative_ids = []
 
 def get_lyrics(track_name, artist_name):
-    search_query = f"{track_name} {artist_name} site:https://genius.com"
-    search_url = f"https://www.google.com/search?q={requests.utils.quote(search_query)}"
-
-    # Set up headless Chrome
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--window-size=1920x1080")
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
+    """Fetch lyrics from ChartLyrics API."""
     try:
-        driver.get(search_url)
-        time.sleep(2)  # Let page load
-
-        # Find all <a> tags and get first Genius link
-        links = driver.find_elements(By.TAG_NAME, "a")
-        genius_url = "https://genius.com"
-        for link in links:
-            href = link.get_attribute("href")
-            if href and "https://genius.com" in href and "/lyrics" in href:
-                genius_url = href
-                break
-
-        if not genius_url:
-            print("  ➤ Genius link not found.")
+        search_url = f"http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist={requests.utils.quote(artist_name)}&song={requests.utils.quote(track_name)}"
+        response = requests.get(search_url)
+        if response.status_code != 200:
+            print("  ➤ Failed to connect to ChartLyrics API.")
             return None
 
-        # Load Genius lyrics page
-        driver.get(genius_url)
-        time.sleep(3)  # Wait for lyrics to load
-
-        # Parse page with BeautifulSoup
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
-
-        # Genius lyrics are split across multiple divs
-        lyrics_containers = soup.find_all("div", class_=lambda c: c and "Lyrics__Container" in c)
-
-        lyrics = "\n".join([div.get_text(separator="\n") for div in lyrics_containers])
-        print("Lyrics snippet:", lyrics[:300] if lyrics else "None")
-        return lyrics.strip() if lyrics else None
+        soup = BeautifulSoup(response.text, 'xml')
+        lyrics = soup.find('Lyric')
+        if lyrics and lyrics.text.strip():
+            print("Lyrics snippet:", lyrics.text.strip()[:300])
+            return lyrics.text.strip()
+        else:
+            print("  ➤ No lyrics found on ChartLyrics.")
+            return None
 
     except Exception as e:
-        print(f"  ➤ Error fetching lyrics: {e}")
+        print(f"  ➤ Error fetching lyrics from ChartLyrics: {e}")
         return None
 
 def analyze_sentiment_vader(lyrics):
