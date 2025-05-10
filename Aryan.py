@@ -1,223 +1,130 @@
-
-# # import spotipy
-# # from spotipy.oauth2 import SpotifyOAuth
-
-# # # Set your credentials and redirect URI --- TEST(G)
-# # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-# #     client_id="95a3dd3dd0b241709a938b502eb7326a",
-# #     client_secret="dc98f98db12d43149e4e6247a7a2fc08",
-# #     redirect_uri="http://127.0.0.1:8888/callback",
-# #     scope= "playlist-read-private user-top-read"
-# # ))
-
-# # ######################## JSON Test ###############################
-# # # import json
-# # # response = sp.current_user_top_tracks(limit=10)
-# # # print(json.dumps(response, indent=2))
-# # ##################################################################
-
-# # ## List playlists
-# # playlists = sp.current_user_playlists()
-# # for idx, playlist in enumerate(playlists['items'], start=1):
-# #     print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
-
-# # # Select individual playlist by index
-# # selected_index = int(input("\nEnter the index of the playlist to view its tracks: ")) - 1
-# # selected_playlist_id = playlists['items'][selected_index]['id']
-
-# # # Fetch tracks in selected playlist
-# # tracks = sp.playlist_tracks(selected_playlist_id)
-
-# # #Print tracks and cumulative track ID list
-# # print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
-# # cumulative_ids = []
-# # for idx, item in enumerate(tracks['items'], start=1):
-# #     track = item['track']
-# #     print(f"{idx}. {track['name']} (ID: {track['id']})")
-# #     cumulative_ids.append(track['id'])
-# # print(cumulative_ids)
-
-
-# ####################################### Find top artists #########################################
-# # top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
-
-# # # Check if there are any top artists, if so display, else return msg.
-# # if top_artists['items']:
-# #     for idx, artist in enumerate(top_artists['items'], 1):
-# #         print(f"{idx}. {artist['name']}")
-# # else:
-# #     print("No top artists found.")
-
-
-
-
-
-# ##############################################################################################################
-# ##############################################################################################################
-
-# import os
-# if os.path.exists(".cache"):
-#     os.remove(".cache")
-# import spotipy
-# from spotipy.oauth2 import SpotifyOAuth
-# from spotipy.exceptions import SpotifyException
-
-
-# # # Set your credentials and redirect URI --- TEST(G)
-# sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-#      client_id="95a3dd3dd0b241709a938b502eb7326a",
-#      client_secret="dc98f98db12d43149e4e6247a7a2fc08",
-#      redirect_uri="http://127.0.0.1:8888/callback",
-#     scope= "playlist-read-private user-top-read"
-#  ))
-
-
-# # ## List playlists
-# # playlists = sp.current_user_playlists()
-# # for idx, playlist in enumerate(playlists['items'], start=1):
-# #     print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
-
-# # # Prompt the user to select a playlist by index
-# # selected_index = int(input("\nEnter the index of the playlist to view its tracks: ")) - 1
-# # selected_playlist_id = playlists['items'][selected_index]['id']
-
-# # # Fetch the tracks in the selected playlist
-# # tracks = sp.playlist_tracks(selected_playlist_id)
-
-# # print(f"\nTracks in playlist '{playlists['items'][selected_index]['name']}':")
-# # cumulative_ids = []
-# # for idx, item in enumerate(tracks['items'], start=1):
-# #     track = item['track']
-# #     print(f"{idx}. {track['name']} (ID: {track['id']})")
-# #     cumulative_ids.append(track['id'])
-# # print(cumulative_ids)
-
-# #####################################################
-
-
-# try:
-#     audio_features = sp.audio_features(tracks=['2JzZzZUQj3Qff7wapcbKjc'])
-#     print(audio_features)
-# except SpotifyException as e:
-#     if e.http_status == 403:
-#         print("Access to the audio-features endpoint is restricted for your application.")
-#     else:
-#         print(f"An error occurred: {e}")
-
-# # print("\nAudio Features for each track:")
-# # for idx, features in enumerate(audio_features, start=1):
-# #     if features:  # Ensure the track's features were fetched successfully
-# #         print(f"{idx}. {features['id']}:")
-# #         print(f"   Danceability: {features['danceability']}")
-# #         print(f"   Energy: {features['energy']}")
-# #         print(f"   Valence: {features['valence']}")
-# #         print(f"   Tempo: {features['tempo']}")
-# #         print(f"   Acousticness: {features['acousticness']}")
-# #         print(f"   Instrumentalness: {features['instrumentalness']}")
-# #         print(f"   Liveness: {features['liveness']}")
-# #         print(f"   Speechiness: {features['speechiness']}")
-# #     else:
-# #         print(f"{idx}. No features available.")
-
-
-
-#######################################################################################################################
-
 import os
 import requests
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-
+import nltk
 import xml.etree.ElementTree as ET
 
-#Remove Existing cache file to ensure problem fresh authentication
+# Remove existing cache
 if os.path.exists(".cache"):
     os.remove(".cache")
 
-#Download and set up VADER lexicon - used for sentiment analysis
+# Download VADER lexicon if not already present
 nltk.download('vader_lexicon')
+
+# Setup VADER analyzer
 vader = SentimentIntensityAnalyzer()
 
-
-#Spotify OAuth authentication setup; User input credentials and redirect URI (TEST(G))
-sp = spotipy.Spotify(auth_manager = SpotifyOAuth(
-    client_id = "95a3dd3dd0b241709a938b502eb7326a",
-    client_secret = "dc98f98db12d43149e4e6247a7a2fc08",
-    redirect_uri = "http://127.0.0.1:8888/callback",
-    scope = "playlist-read-private user-top-read"
+# Spotify OAuth
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id="95a3dd3dd0b241709a938b502eb7326a",
+    client_secret="dc98f98db12d43149e4e6247a7a2fc08",
+    redirect_uri="http://127.0.0.1:8888/callback",
+    scope="playlist-read-private user-top-read"
 ))
 
-try:
-    audio_features = sp.audio_features(tracks = ['2JzZzZUQj3Qff7wapcbKjc'])
-    print(audio_features)
-except SpotifyException as e:
-    if e.http_status == 403:
-        print("Access to the audio feautures endpoint is restricted for your application.")
-    else: 
-        print(f"An error occured: {e}")
-
-
-#List user playlists
-playlists = sp.current_user_playlists()
-for idx, playlists in enumerate(playlists['items'], start = 1):
-    print(f"{idx}, {playlists['name']} (ID: {playlists['id']})")
-
-#Choose playlist
-selected_index = int(input("\nEnter the index of the playlist to view its tracks: ")) - 1
-selected_playlists_id = playlists['items'][selected_index]['id']
-
-#Get tracks from selected playlist
-tracks = sp.playlist_tracks(selected_playlists_id)
-print(f"/nTracks in playlist '{playlists['items'][selected_index]['name']} ':")
-cumulative_ids = []
-
-#function to get lyrics using ChartLyrics API
 def get_lyrics(track_name, artist_name):
-    url = "http://api.chartlyrics.com/apivl.asmx/SearchLyricDirect"
+    """
+    Fetch lyrics using the ChartLyrics API.
+    """
+    url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect"
     params = {"artist": artist_name, "song": track_name}
     try:
-        response = requests.get(url, params = params, timeout = 5)
+        response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
         root = ET.fromstring(response.content)
         ns = {'ns': 'http://api.chartlyrics.com/'}
         lyric = root.find('ns:Lyric', ns)
         if lyric is not None and lyric.text:
-            print("Lyrics snippet:", lyric.text[:300])
             return lyric.text.strip()
         else:
-            print("Lyrics not found.")
             return None
-    except Exception as e:
-        print(f"Error fetching lyrics: {e}")
+    except Exception:
         return None
-    
-#function to analyze lyric sentiment using VADER
+
 def analyze_sentiment_vader(lyrics):
+    """
+    Analyze sentiment using VADER.
+    """
     if lyrics:
         scores = vader.polarity_scores(lyrics)
         compound = scores['compound']
-        mood = "Positive" if compound > 0.3 else "Negative" if compound < -0.3 else "Neutreal"
+        mood = "Positive" if compound > 0.3 else "Negative" if compound < -0.3 else "Neutral"
         return mood, compound
     return "Unknown", 0.0
 
-#Process each track
-for idx, item in enumerate (tracks['items'], start = 1):
-    track = item['track']
-    name = track['name']
-    artist = track['artists'][0]['name']
-    print(f"\n{idx}. {name} by {artist}")
-
-    cumulative_ids.append(track['id'])
-    lyrics = get_lyrics(name, artist)
-    if lyrics:
-        mood, score = analyze_sentiment_vader(lyrics)
-        print(f" Mood: {mood} (Compound Score: {score: .2f})")
+# Retrieve all user playlists
+playlists = []
+offset = 0
+while True:
+    response = sp.current_user_playlists(limit=50, offset=offset)
+    playlists.extend(response['items'])
+    if response['next']:
+        offset += 50
     else:
-        print("Lyrics not found")
+        break
 
-print("\nTrack IDs collected:", cumulative_ids)
-    
-        
+print(f"Total playlists found: {len(playlists)}")
 
+# Initialize counters and lists
+total_tracks = 0
+tracks_with_lyrics = 0
+analyzed_tracks = []
+compound_scores = []
 
+# Process each playlist
+for playlist in playlists:
+    playlist_name = playlist['name']
+    playlist_id = playlist['id']
+    print(f"\nProcessing playlist: {playlist_name}")
+
+    # Retrieve all tracks in the playlist
+    tracks = []
+    offset = 0
+    while True:
+        response = sp.playlist_tracks(playlist_id, limit=100, offset=offset)
+        tracks.extend(response['items'])
+        if response['next']:
+            offset += 100
+        else:
+            break
+
+    print(f"  Total tracks in playlist: {len(tracks)}")
+
+    for item in tracks:
+        track = item['track']
+        if track is None:
+            continue
+        name = track['name']
+        artists = [artist['name'] for artist in track['artists']]
+        artist_name = ', '.join(artists)
+        total_tracks += 1
+
+        lyrics = get_lyrics(name, artist_name)
+        if lyrics:
+            mood, score = analyze_sentiment_vader(lyrics)
+            tracks_with_lyrics += 1
+            analyzed_tracks.append(f"{name} by {artist_name}")
+            compound_scores.append(score)
+            print(f"    Analyzed: {name} by {artist_name} ➤ Mood: {mood} (Score: {score:.2f})")
+        else:
+            print(f"    Skipped (lyrics not found): {name} by {artist_name}")
+
+# Summary
+print("\n\nAnalysis Summary:")
+print(f"  Total tracks processed: {total_tracks}")
+print(f"  Tracks with lyrics found: {tracks_with_lyrics}")
+if total_tracks > 0:
+    print(f"  Success rate: {tracks_with_lyrics}/{total_tracks} ({(tracks_with_lyrics/total_tracks)*100:.2f}%)")
+else:
+    print("  No tracks processed.")
+
+# Output lists
+print("\nTracks successfully analyzed:")
+for track in analyzed_tracks:
+    print(f"  - {track}")
+
+print("\nCorresponding compound sentiment scores:")
+for score in compound_scores:
+    print(f"  - {score:.2f}")
