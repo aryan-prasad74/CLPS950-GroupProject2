@@ -123,8 +123,11 @@ else:
 # Output lists
 print("\nTracks successfully analyzed:")
 for track in analyzed_tracks:
-    print(f"  - {track}")
+    print(f"{track}")
 
 print("\nCorresponding compound sentiment scores:")
 for score in compound_scores:
-    print(f"  - {score:.2f}")
+    print(f"{score:.2f}")
+    
+print(analyzed_tracks) # List of indexed tracks
+print(compound_scores)  # List of correspondingly indexed scores
