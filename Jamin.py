@@ -53,8 +53,6 @@ def get_lyrics(track_name, artist_name):
         if lyric is not None and lyric.text:
             print("Lyrics snippet:", lyric.text[:300])
             return lyric.text.strip()
-        else:
-            print("  ➤ Lyrics not found.")
 
             return None
     except Exception as e:
@@ -86,8 +84,8 @@ for idx, item in enumerate(tracks['items'], start=1):
         mood, score = analyze_sentiment_vader(lyrics)
         print(f"  ➤ Mood: {mood} (Compound Score: {score:.2f})")
     else:
-        print("  ➤ Lyrics not found.")
+        print(" ➤ Lyrics not found")
         not_found_count += 1
 
 print("\nTrack IDs collected:", cumulative_ids)
-print(not_found_count)
+print("Tracks not found:", not_found_count)
