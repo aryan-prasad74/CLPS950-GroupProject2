@@ -15,8 +15,8 @@ def login_to_spotify():
    try:
        # Spotify authentication using Spotipy
        sp = Spotify(auth_manager=SpotifyOAuth(
-           client_id="95a3dd3dd0b241709a938b502eb7326a",
-           client_secret="dc98f98db12d43149e4e6247a7a2fc08",
+           client_id="YOUR_CLIENT_ID",
+           client_secret="YOUR_CLIENT_SECRET",
            redirect_uri="http://127.0.0.1:8888/callback",
            scope="playlist-read-private user-top-read"
        ))
@@ -70,8 +70,12 @@ def create_application_window():
    frame.pack(expand=True)
 
 
+   tk.Label(frame, text="Hello and welcome to our Spotify Mood Analyzer.", font=("Helvetica", 16, "bold"), fg="black", wraplength=600).pack(pady=10)
+   tk.Label(frame, text="This program will take information from all existing and saved playlists on your account to generate a playlist based on the mood you pick.", wraplength=600, font=("Helvetica", 12), fg="black").pack(pady=10)
+
+
    login_button = tk.Button(frame, text="Login to Spotify", command=login_clicked, bg="grey", fg="black", font=("Helvetica", 14, "bold"))
-   login_button.pack(pady=40)
+   login_button.pack(pady=20)
 
 
    # Dropdown for playlists
