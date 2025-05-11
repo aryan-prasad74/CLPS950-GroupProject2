@@ -3,15 +3,13 @@ import threading as threading
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
-
 # Global variable to store Spotify object and playlists
 sp = None
 playlists = []
 
 # Function to create the main application window
 def create_application_window():
-   global root, login_button, playlist_var, playlist_dropdown
-
+   global root, login_button #When add buttons, add here#
    root = tk.Tk()
    root.title("Spotify Mood Analyzer")
    root.geometry("900x700")
@@ -45,17 +43,17 @@ def login_clicked():
 # Function to handle Spotify login
 def login_to_spotify():
    global sp, playlists
-   try:
-      from TotalTrackAnalyzer import profile_track_analysis
-      analyzed_tracks, compound_scores = profile_track_analysis()
-   except Exception as e:
-       print("Error during Spotify login:", e)
+   # try:
+   #    from TotalTrackAnalyzer import profile_track_analysis
+   #    analyzed_tracks, compound_scores = profile_track_analysis()
+   # except Exception as e:
+   #     print("Error during Spotify login:", e)
 
 
 
 # STEP 2: DISPLAY ANALYTICS DIAGRAMS
-from ProfileAnalyticsDiagrams import plot_sentiment_scores
-plot_sentiment_scores(analyzed_tracks, compound_scores)
+# from ProfileAnalyticsDiagrams import plot_sentiment_scores
+# plot_sentiment_scores(analyzed_tracks, compound_scores)
 # Display diagrams on UI
 
 
