@@ -7,6 +7,33 @@ from spotipy.oauth2 import SpotifyOAuth
 sp = None
 playlists = []
 
+
+# STEP 1: LOGIN BUTTON
+
+# Function to handle Spotify login
+def login_to_spotify():
+   global sp, playlists
+   # try:
+   #    from TotalTrackAnalyzer import profile_track_analysis
+   #    analyzed_tracks, compound_scores = profile_track_analysis()
+   # except Exception as e:
+   #     print("Error during Spotify login:", e)
+
+# Function to handle login button click
+def login_clicked():
+#  welcome_label.pack_forget()  # Hide welcome message
+   threading.Thread(target=login_to_spotify).start()
+   root.mainloop()
+
+
+# STEP 2: DISPLAY ANALYTICS DIAGRAMS
+# from ProfileAnalyticsDiagrams import plot_sentiment_scores
+# plot_sentiment_scores(analyzed_tracks, compound_scores)
+# Display diagrams on UI
+
+##############################################################################################################################################################################
+##############################################################################################################################################################################
+
 # Function to create the main application window
 def create_application_window():
    global root, login_button #When add buttons, add here#
@@ -29,36 +56,7 @@ def create_application_window():
 #   login_button = tk.Button(frame, text="Analyse my Music", command=login_clicked, bg="grey", fg="black", font=("Helvetica", 14, "bold"))
 #   login_button.pack(pady=40)
 
-##############################################################################################################################################################################
-##############################################################################################################################################################################
-
-# STEP 1: LOGIN BUTTON
-
-# Function to handle login button click
-def login_clicked():
-#  welcome_label.pack_forget()  # Hide welcome message
-   threading.Thread(target=login_to_spotify).start()
-   root.mainloop()
-
-# Function to handle Spotify login
-def login_to_spotify():
-   global sp, playlists
-   # try:
-   #    from TotalTrackAnalyzer import profile_track_analysis
-   #    analyzed_tracks, compound_scores = profile_track_analysis()
-   # except Exception as e:
-   #     print("Error during Spotify login:", e)
-
-
-
-# STEP 2: DISPLAY ANALYTICS DIAGRAMS
-# from ProfileAnalyticsDiagrams import plot_sentiment_scores
-# plot_sentiment_scores(analyzed_tracks, compound_scores)
-# Display diagrams on UI
-
-
-
-
+root.mainloop()
 
 ##############################################################################################################################################################################
 ##############################################################################################################################################################################
