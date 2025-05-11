@@ -8,16 +8,16 @@ sp = None
 playlists = []
 
 
-# STEP 1: LOGIN BUTTON
+# STEP 1: LOGIN BUTTON - Authenticate, Analyse Music, and Display Graphs
 
 # Function to handle Spotify login
 def login_to_spotify():
    global sp, playlists
-   # try:
-   #    from TotalTrackAnalyzer import profile_track_analysis
-   #    analyzed_tracks, compound_scores = profile_track_analysis()
-   # except Exception as e:
-   #     print("Error during Spotify login:", e)
+   try:
+      from TotalTrackAnalyzer import profile_track_analysis
+      analyzed_tracks, compound_scores = profile_track_analysis()
+   except Exception as e:
+       print("Error during Spotify login:", e)
 
 # Function to handle login button click
 def login_clicked():
@@ -25,10 +25,9 @@ def login_clicked():
    threading.Thread(target=login_to_spotify).start()
    root.mainloop()
 
-
 # STEP 2: DISPLAY ANALYTICS DIAGRAMS
-# from ProfileAnalyticsDiagrams import plot_sentiment_scores
-# plot_sentiment_scores(analyzed_tracks, compound_scores)
+   from ProfileAnalyticsDiagrams import plot_sentiment_scores
+   plot_sentiment_scores(analyzed_tracks, compound_scores)
 # Display diagrams on UI
 
 ##############################################################################################################################################################################
