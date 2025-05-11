@@ -20,8 +20,8 @@ def profile_track_analysis():
 
     # Spotify OAuth
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-        client_id="95a3dd3dd0b241709a938b502eb7326a",
-        client_secret="dc98f98db12d43149e4e6247a7a2fc08",
+        client_id="37c9bce1cdbc4583b26bd65253b04a36",
+        client_secret="4067ab6c82a1422289c534641e81d9c4",
         redirect_uri="http://127.0.0.1:8888/callback",
         scope="playlist-read-private user-top-read"
     ))
