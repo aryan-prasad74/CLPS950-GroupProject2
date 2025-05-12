@@ -1,32 +1,19 @@
-import os
-import requests
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-import nltk
-import xml.etree.ElementTree as ET
+def profile_track_analysis():
+    import os
+    import requests
+    import spotipy
+    from spotipy.oauth2 import SpotifyOAuth
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    import nltk
+    import xml.etree.ElementTree as ET
 
-def profile_track_analysis(mood_index=None, mood_tolerance=0.05):
-    # Download VADER lexicon if not already present
     nltk.download('vader_lexicon', quiet=True)
     vader = SentimentIntensityAnalyzer()
-
-    # Validate mood index
-    if mood_index is None:
-        try:
-            mood_index = float(input("Enter desired mood index (-1 to 1): "))
-        except ValueError:
-            print("Invalid input. Please enter a number between -1 and 1.")
-            return
-    if not -1.0 <= mood_index <= 1.0:
-        print("Mood index must be between -1 and 1.")
-        return
 
     # Remove existing Spotify cache
     if os.path.exists(".cache"):
         os.remove(".cache")
 
-    # Spotify OAuth setup
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
         client_id="37c9bce1cdbc4583b26bd65253b04a36",
         client_secret="4067ab6c82a1422289c534641e81d9c4",
@@ -53,7 +40,7 @@ def profile_track_analysis(mood_index=None, mood_tolerance=0.05):
             return score
         return None
 
-    # Collect user playlists
+    # Collect and process user playlists once
     playlists = []
     offset = 0
     while True:
@@ -65,7 +52,6 @@ def profile_track_analysis(mood_index=None, mood_tolerance=0.05):
             break
 
     print(f"\nFound {len(playlists)} playlists.")
-
     total_tracks = 0
     track_scores = {}
 
@@ -93,56 +79,60 @@ def profile_track_analysis(mood_index=None, mood_tolerance=0.05):
             track_uri = track['uri']
             total_tracks += 1
 
-            lyrics = get_lyrics(track_name, artist_name)
-            if lyrics:
-                score = analyze_sentiment(lyrics)
-                if score is not None:
-                    track_scores[track_uri] = (f"{track_name} by {artist_name}", score)
-                    print(f"{track_name} by {artist_name} Score: {score:.2f}")
+            if track_uri not in track_scores:
+                lyrics = get_lyrics(track_name, artist_name)
+                if lyrics:
+                    score = analyze_sentiment(lyrics)
+                    if score is not None:
+                        track_scores[track_uri] = (f"{track_name} by {artist_name}", score)
+                        print(f"{track_name} by {artist_name} Score: {score:.2f}")
+                    else:
+                        print(f"Sentiment failed: {track_name} by {artist_name}")
                 else:
-                    print(f"Sentiment failed: {track_name} by {artist_name}")
-            else:
-                print(f"Lyrics not found: {track_name} by {artist_name}")
+                    print(f"Lyrics not found: {track_name} by {artist_name}")
 
     print(f"\nProcessed {total_tracks} tracks.")
     print(f"Tracks with sentiment scores: {len(track_scores)}")
 
-    # Filter by mood score
-    def filter_tracks_by_tolerance(tolerance):
-        return [
-            uri for uri, (_, score) in track_scores.items()
-            if abs(score - mood_index) <= tolerance
-        ]
+    # Start mood selection loop
+    while True:
+        try:
+            mood_index = float(input("\nEnter desired mood index (-1 to 1): "))
+        except ValueError:
+            print("Invalid input. Please enter a number between -1 and 1.")
+            continue
+        if not -1.0 <= mood_index <= 1.0:
+            print("Mood index must be between -1 and 1.")
+            continue
 
-# Start with initial tolerance
-    tolerances = [mood_tolerance, 0.1, 0.15]
-    matching_tracks = []
+        def filter_tracks_by_tolerance(tolerance):
+            return [
+                uri for uri, (_, score) in track_scores.items()
+                if abs(score - mood_index) <= tolerance
+            ]
 
-    for tol in tolerances:
-        matching_tracks = filter_tracks_by_tolerance(tol)
-        if len(matching_tracks) >= 10:
-            print(f"\nFound {len(matching_tracks)} tracks within ±{tol:.2f} of {mood_index:.2f}.")
-            mood_tolerance = tol  # Update to final used tolerance
-            break
+        # Try with increasing tolerances
+        tolerances = [0.05, 0.1, 0.15]
+        matching_tracks = []
+        for tol in tolerances:
+            matching_tracks = filter_tracks_by_tolerance(tol)
+            if len(matching_tracks) >= 10:
+                print(f"\nFound {len(matching_tracks)} tracks within ±{tol:.2f} of {mood_index:.2f}.")
+                break
+            else:
+                print(f"\nOnly {len(matching_tracks)} tracks found within ±{tol:.2f}. Trying wider range...")
+
+        if not matching_tracks:
+            print("No matching tracks found. Try a different mood.")
         else:
-            print(f"\nOnly {len(matching_tracks)} tracks found within ±{tol:.2f}. Trying wider range...")
+            user_id = sp.current_user()['id']
+            playlist_title = f"Mood Playlist ({mood_index:+.2f})"
+            new_playlist = sp.user_playlist_create(user=user_id, name=playlist_title, public=False,
+                                                   description=f"Songs with mood around {mood_index:+.2f}")
+            sp.playlist_add_items(new_playlist['id'], matching_tracks[:100])
+            print(f"Created playlist: {playlist_title}")
 
-# Final check
-    if len(matching_tracks) < 10:
-        print(f"\nStill only {len(matching_tracks)} tracks found. Proceeding with available tracks.")
-
-    # Create playlist
-    if matching_tracks:
-        user_id = sp.current_user()['id']
-        playlist_title = f"Mood Playlist ({mood_index:+.2f})"
-        new_playlist = sp.user_playlist_create(user=user_id, name=playlist_title, public=False,
-                                               description=f"Songs with mood around {mood_index:+.2f}")
-        sp.playlist_add_items(new_playlist['id'], matching_tracks[:100])  # Limit to 100
-        print(f"Created playlist: {playlist_title}")
-    else:
-        print("No songs matched the mood range. Playlist not created.")
-
-    return track_scores
-
-# Run the function (or call with a specific value)
-profile_track_analysis()
+        again = input("\nWould you like to create another mood-based playlist? (yes/no): ").strip().lower()
+        if again not in ('yes', 'y'):
+            print("Exiting. Enjoy your music!")
+            break
