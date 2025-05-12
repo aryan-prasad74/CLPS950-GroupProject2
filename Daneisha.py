@@ -1,70 +1,92 @@
 import tkinter as tk
-import threading as threading
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
-
-# Global variable to store Spotify object and playlists
+#Global variable to store spotify object & playlists
 sp = None
 playlists = []
+is_analyzing = False #tracks if analysis is ongoing
 
-# Function to create the main application window
+#function that creates main application window
 def create_application_window():
-   global root, login_button, playlist_var, playlist_dropdown
+    global root, frame, welcome_label, login_button
 
-   root = tk.Tk()
-   root.title("Spotify Mood Analyzer")
-   root.geometry("900x700")
+    root = tk.Tk()
+    root.title("Spotify Mood Analyzer")
+    root.geometry("900x700")
 
-   frame = tk.Frame(root)
-   frame.pack(expand=True)
+    frame = tk.Frame(root)
+    frame.pack(expand = True)
 
-# Display Label (Welcome message)
-   welcome_label = tk.Label(frame, text="Welcome message", font=("Helvetica", 16), fg="black")
-   welcome_label.pack(pady=20)
+    #Label - welcome message
+    welcome_label = tk.Label(frame, text = "Welcome to my program [test text]", font = ("Helvetica", 16), fg = "black")
+    welcome_label.pack(pady = 20)
 
-# Create Login Button (Step 1)
-   login_button = tk.Button(frame, text="Login to Spotify", command=login_clicked, bg="grey", fg="black", font=("Helvetica", 14, "bold"))
-   login_button.pack(pady=40)
+    #login button
+    login_button = tk.Button(frame, text = "Analyze my Music", command = login_clicked, bg = "grey", fg = "black", font = ("Helvetica", 14, "bold"))
+    login_button.pack(pady = 40)
 
-# Create "Analyse my Music" Button (Step 2)
-#   login_button = tk.Button(frame, text="Analyse my Music", command=login_clicked, bg="grey", fg="black", font=("Helvetica", 14, "bold"))
-#   login_button.pack(pady=40)
+    root.mainloop()
 
-##############################################################################################################################################################################
-##############################################################################################################################################################################
+#function that handles spotify login and analysis
+def login_and_analysis():
+    global sp, playlists, is_analyzing
 
-# STEP 1: LOGIN BUTTON
+    if is_analyzing:
+        return #prevents multiple analysis from running
+    
+    try:
+        from TotalTrackAnalyzer import profile_track_analysis
 
-# Function to handle login button click
+        #sets analyzing to true
+        is_analyzing = True
+        
+        #visual - clears frame for analysis
+        frame.pack_forget()
+        analysis_frame = tk.Frame(root)
+        analysis_frame.pack(fill = "both", expand = True)
+
+        analysis_label = tk.Label(analysis_frame, text = "Analyzing your music ...", font = ("Helvetica", 16), fg = "black")
+        analysis_label.pack(pady = 10)
+
+        analyzed_tracks, compound_scores = [], []
+
+        def update_analysis(track, score):
+
+            #update analysis UI with curr track & score
+            track_label = tk.Label(analysis_frame, text = f"{track}: {score}", font = ("Helvetica", 12), fg = "black")
+            track_label.pack(anchor = "w")
+            root.after(0, root.update) #ensures ui refresh
+
+        #perform analysis w/o blocking UI updates
+        for track, score in profile_track_analysis(live_callback = update_analysis):
+            analyzed_tracks.append(track)
+            compound_scores.append(score)
+            root.after(0, root.update) #visual - update UI when each track is analyzed
+
+        #final analysis message
+        complete_label = tk.Label(analysis_frame, text = "analysis complete, displaying results ...", font = ("Helvetica", 14), fg = "black")
+        complete_label.pack (pady = 10)
+
+        from ProfileAnalyticsDiagrams import plot_sentiment_scores
+        plot_sentiment_scores(analyzed_tracks, compound_scores)
+
+        #resets analysis
+        is_analyzing = False
+
+    except Exception as e:
+        print("Error during Spotify login and analysis:", e)
+        is_analyzing = False #resets if theres an error
+
+#function to handle login button
 def login_clicked():
-#  welcome_label.pack_forget()  # Hide welcome message
-   threading.Thread(target=login_to_spotify).start()
-   root.mainloop()
 
-# Function to handle Spotify login
-def login_to_spotify():
-   global sp, playlists
-   try:
-      from TotalTrackAnalyzer import profile_track_analysis
-      analyzed_tracks, compound_scores = profile_track_analysis()
-   except Exception as e:
-       print("Error during Spotify login:", e)
+    #hide welcome message and login button once clicked
+    welcome_label.pack_forget()
+    login_button.pack_forget()
 
+    #starts login
+    login_and_analysis()
 
-
-# STEP 2: DISPLAY ANALYTICS DIAGRAMS
-from ProfileAnalyticsDiagrams import plot_sentiment_scores
-plot_sentiment_scores(analyzed_tracks, compound_scores)
-# Display diagrams on UI
-
-
-
-
-
-##############################################################################################################################################################################
-##############################################################################################################################################################################
-## DON'T MOVE, DON'T CHANGE ##
-# If the script is being run, create the window
 if __name__ == "__main__":
-   create_application_window()
+    create_application_window()
