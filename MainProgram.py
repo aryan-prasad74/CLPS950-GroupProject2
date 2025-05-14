@@ -21,10 +21,19 @@ sns.set(style = "whitegrid")
 fig, axs = plt.subplots(2, 1, figsize = (12, 6))
 
 #Bar Plot- visualizes sentiment scores per song
-sns.barplot(x = compound_scores, y = analyzed_tracks, ax = axs[0], palette = "coolwarm")
-axs[0].set_title("Sentiment Scores per Song")
-axs[0].set_ylabel("Compound Score")
-axs[0].set_xlabel("Tracks")
+# Create a DataFrame with data
+df = pd.DataFrame({
+    'Track': analyzed_tracks,
+    'Score': compound_scores
+})
+
+# Create the bar plot with hue and palette
+plt.figure(figsize=(12, 6))
+sns.barplot(data=df, x='Score', y='Track', hue='Track', palette='coolwarm', dodge=False, legend=False)
+plt.title("Sentiment Scores per Song")
+plt.xlabel("Compound Score")
+plt.ylabel("Tracks")
+
 
 #Historgram - visualizes distribution of sentiment scores
 sns.histplot(compound_scores, bins = 20, kde = True, ax = axs[1], color = 'skyblue')
@@ -56,7 +65,7 @@ plt.show()
 
 
 # Plotting mood over time (Using data from CSV File)
-df = pd.read_csv(filename, names=['Timestamp', 'Average_Score'])
+df = pd.read_csv('playlist_history.csv', names=['Timestamp', 'Average_Score'])
 df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 df.sort_values('Timestamp', inplace=True)
 
