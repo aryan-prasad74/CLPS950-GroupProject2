@@ -1,5 +1,8 @@
 import os
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from Jamin import profile_track_analysis as analyze_tracks
 
 #clear cache
