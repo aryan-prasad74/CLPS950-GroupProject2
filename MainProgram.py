@@ -3,7 +3,7 @@ import os
 from Jamin import profile_track_analysis
 from PlaylistAnalyze import sp
 from ProfileAnalyticsDiagrams import plot_sentiment_scores
-from TotalTrackAnalyzer import profile_track_analysis as analyze_tracks
+#from TotalTrackAnalyzer import profile_track_analysis as analyze_tracks
 
 #clear cache
 if os.path.exists(".cache"):
