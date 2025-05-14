@@ -15,11 +15,11 @@ print("Starting Spotify Mood Analysis Program")
 print("\nRunning Track Analysis ...")
 profile_track_analysis
 
-#run playlist analysis
-print("\nRunning Playlist Analyzer ...")
-playlists = sp.current_user_playlists()
-for idx, playlist in enumerate(playlists['items'], start=1):
-    print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
+# #run playlist analysis
+# print("\nRunning Playlist Analyzer ...")
+# playlists = sp.current_user_playlists()
+# for idx, playlist in enumerate(playlists['items'], start=1):
+#     print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
 
 #run total track analysis
 print("\nRunning Total Track Analysis ...")
