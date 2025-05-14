@@ -1,6 +1,6 @@
 import os
 
-from Jamin import profile_track_analysis
+from Jamin import profile_track_analysis as analyze_tracks
 #from PlaylistAnalyze import sp
 #from ProfileAnalyticsDiagrams import plot_sentiment_scores
 #from TotalTrackAnalyzer import profile_track_analysis as analyze_tracks
