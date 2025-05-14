@@ -39,9 +39,8 @@ def profile_track_analysis(mood_tolerance=0.05):
         client_id="37c9bce1cdbc4583b26bd65253b04a36",
         client_secret="4067ab6c82a1422289c534641e81d9c4",
         redirect_uri="http://127.0.0.1:8888/callback",
-        scope="playlist-read-private user-top-read"
+        scope="playlist-read-private user-top-read playlist-modify-public playlist-modify-private"
     ))
-
 
 
     # Collect user playlists
