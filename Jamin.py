@@ -108,10 +108,12 @@ def profile_track_analysis(mood_tolerance=0.05):
     user_id = sp.current_user()['id']
 
     # Loop for repeated mood input
+    cumulative_moods = []
     continue_run = True
     while continue_run:
         try:
             mood_index = float(input("\nEnter desired mood index (-1 to 1), or 'q' to quit: "))
+            cumulative_moods.append(mood_index)
         except ValueError:
             print("Exiting.")
             continue_run = False
@@ -153,17 +155,9 @@ def profile_track_analysis(mood_tolerance=0.05):
             )
             sp.playlist_add_items(new_playlist['id'], matching_tracks[:100])
             print(f"Created playlist: {playlist_title}")
-            
-            # Calculate average sentiment score for the playlist
-            selected_scores = [score for uri, (_, score) in track_scores.items() if uri in matching_tracks]
-            avg_score = sum(selected_scores) / len(selected_scores) if selected_scores else 0.0
-            # Append data to CSV file
-            with open(CSV_FILE, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow([datetime.now().isoformat(), avg_score])
         else:
             print("No songs matched the mood range. Playlist not created.")
-    return analyzed_tracks, compound_scores
+    return analyzed_tracks, compound_scores, cumulative_moods
 
 
 # To Run Individual Document:
