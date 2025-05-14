@@ -101,11 +101,13 @@ def profile_track_analysis(mood_tolerance=0.05):
     user_id = sp.current_user()['id']
 
     # Loop for repeated mood input
-    while True:
+    continue_run = True
+    while continue_run:
         try:
             mood_index = float(input("\nEnter desired mood index (-1 to 1), or 'q' to quit: "))
         except ValueError:
             print("Exiting.")
+            continue_run = False
             break
 
         if not -1.0 <= mood_index <= 1.0:
