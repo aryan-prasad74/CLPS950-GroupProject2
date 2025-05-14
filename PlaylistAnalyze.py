@@ -12,11 +12,6 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope= "playlist-read-private user-top-read"
 ))
 
-######################## JSON Test ###############################
-# import json
-# response = sp.current_user_top_tracks(limit=10)
-# print(json.dumps(response, indent=2))
-##################################################################
 
 ## List playlists
 playlists = sp.current_user_playlists()
@@ -39,15 +34,6 @@ for idx, item in enumerate(tracks['items'], start=1):
 print(cumulative_ids)
 
 
-####################################### Find top artists #########################################
-# top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
-
-# # Check if there are any top artists, if so display, else return msg.
-# if top_artists['items']:
-#     for idx, artist in enumerate(top_artists['items'], 1):
-#         print(f"{idx}. {artist['name']}")
-# else:
-#     print("No top artists found.")
 audio_features = sp.audio_features(cumulative_ids)
 
 print("\nAudio Features for each track:")

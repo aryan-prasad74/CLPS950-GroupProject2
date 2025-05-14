@@ -12,11 +12,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope= "playlist-read-private user-top-read"
 ))
 
-######################## JSON Test ###############################
-# import json
-# response = sp.current_user_top_tracks(limit=10)
-# print(json.dumps(response, indent=2))
-##################################################################
+
 
 ## List playlists
 playlists = sp.current_user_playlists()
