@@ -21,7 +21,12 @@ print("Starting Spotify Mood Analysis Program")
 print("\nRunning Track Analysis ...")
 analyzed_tracks, compound_scores = analyze_tracks()
 
-# generate diagrams
+
+##########################################################
+
+## GENERATING SUMMARY DIAGRAMS ##
+
+
 sns.set(style = "whitegrid") 
 fig, axs = plt.subplots(2, 1, figsize = (12, 6))
 
@@ -32,8 +37,7 @@ df = pd.DataFrame({
     'Score': compound_scores
 })
 
-# Create the bar plot with hue and palette
-plt.figure(figsize=(12, 6))
+# Create bar plot
 sns.barplot(data=df, x='Score', y='Track', hue='Track', palette='coolwarm', dodge=False, legend=False)
 plt.title("Sentiment Scores per Song")
 plt.xlabel("Compound Score")
@@ -62,11 +66,11 @@ sizes = [positive, neutral, negative]
 colors = ['green', 'grey', 'red']
 
 # Create pie chart
-plt.figure(figsize=(6,6))
+sns.set(style = "whitegrid") 
+fig, axs = plt.subplots(2, 1, figsize = (12, 6))
 plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=140)
 plt.title('Mood Distribution in Final Playlist')
 plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-plt.show()
 
 
 # Plotting mood over time (Using data from CSV File)
@@ -74,12 +78,12 @@ df = pd.read_csv('playlist_history.csv', names=['Timestamp', 'Average_Score'])
 df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 df.sort_values('Timestamp', inplace=True)
 
-plt.figure(figsize=(10, 5))
 plt.plot(df['Timestamp'], df['Average_Score'], marker='o', linestyle='-')
 plt.title('Average Sentiment Score Over Time')
 plt.xlabel('Timestamp')
 plt.ylabel('Average Sentiment Score')
 plt.grid(True)
+
 plt.tight_layout()
 plt.show()
 
