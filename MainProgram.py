@@ -1,9 +1,6 @@
 import os
 
 from Jamin import profile_track_analysis as analyze_tracks
-#from PlaylistAnalyze import sp
-#from ProfileAnalyticsDiagrams import plot_sentiment_scores
-#from TotalTrackAnalyzer import profile_track_analysis as analyze_tracks
 
 #clear cache
 if os.path.exists(".cache"):
@@ -15,16 +12,7 @@ print("Starting Spotify Mood Analysis Program")
 print("\nRunning Track Analysis ...")
 analyzed_tracks, compound_scores = analyze_tracks()
 
-# #run playlist analysis
-# print("\nRunning Playlist Analyzer ...")
-# playlists = sp.current_user_playlists()
-# for idx, playlist in enumerate(playlists['items'], start=1):
-#     print(f"{idx}. {playlist['name']} (ID: {playlist['id']})")
-
-# #run diagrams
-# print("\nRunning Analytic Diagrams ...")
-# plot_sentiment_scores(analyzed_tracks, compound_scores)
-
+# generate diagrams
 sns.set(style = "whitegrid") 
 fig, axs = plt.subplots(2, 1, figsize = (12, 6))
 
