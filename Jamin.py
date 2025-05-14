@@ -151,6 +151,6 @@ def profile_track_analysis(mood_tolerance=0.05):
             print(f"Created playlist: {playlist_title}")
         else:
             print("No songs matched the mood range. Playlist not created.")
-    return analysed_tracks, compound_scores
+    return analyzed_tracks, compound_scores
 # Run
 #profile_track_analysis()
