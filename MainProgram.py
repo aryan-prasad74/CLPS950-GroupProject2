@@ -1,5 +1,10 @@
 import os
 
+# Clear the CSV file at the start of the program
+csv_file_path = 'mood_playlists.csv'
+with open(csv_file_path, 'w') as file:
+    pass
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
