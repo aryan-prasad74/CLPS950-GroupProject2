@@ -57,6 +57,8 @@ def profile_track_analysis(mood_tolerance=0.05):
     print(f"\nFound {len(playlists)} playlists.")
     total_tracks = 0
     track_scores = {}
+    analyzed_tracks = []
+    compound_scores = []
 
     for playlist in playlists:
         playlist_name = playlist['name']
@@ -89,6 +91,8 @@ def profile_track_analysis(mood_tolerance=0.05):
                     if score is not None:
                         track_scores[track_uri] = (f"{track_name} by {artist_name}", score)
                         print(f"{track_name} by {artist_name} Score: {score:.2f}")
+                        analyzed_tracks.append(f"{track_name} by {artist_name}")
+                        compound_scores.append(score)    
                     else:
                         print(f"Sentiment failed: {track_name} by {artist_name}")
                 else:
@@ -147,6 +151,6 @@ def profile_track_analysis(mood_tolerance=0.05):
             print(f"Created playlist: {playlist_title}")
         else:
             print("No songs matched the mood range. Playlist not created.")
-
+    return analysed_tracks, compound_scores
 # Run
 #profile_track_analysis()
