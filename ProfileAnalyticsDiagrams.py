@@ -6,11 +6,11 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-#Import the profile_track_analysis function from TotalTrackAnalyzer
-from TotalTrackAnalyzer import profile_track_analysis
+# #Import the profile_track_analysis function from TotalTrackAnalyzer
+# from TotalTrackAnalyzer import profile_track_analysis
 
-#Execute track analyssi function - this returns analyzed tracks and their sentiment scores
-analyzed_tracks, compound_scores = profile_track_analysis()
+# #Execute track analyssi function - this returns analyzed tracks and their sentiment scores
+# analyzed_tracks, compound_scores = profile_track_analysis()
 
 #Function to visualize sentiment scores
 def plot_sentiment_scores(analyzed_tracks, compound_scores):
