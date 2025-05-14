@@ -107,7 +107,7 @@ def profile_track_analysis(mood_tolerance=0.05):
         except ValueError:
             print("Exiting.")
             continue_run = False
-            break
+            return
 
         if not -1.0 <= mood_index <= 1.0:
             print("Mood index must be between -1 and 1.")
